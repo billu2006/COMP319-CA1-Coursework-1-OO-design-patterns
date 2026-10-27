@@ -11,12 +11,13 @@ import messaging.User;
 
 public class Main {
 
-    private static final int REPEAT_COUNT = 5;
+    private static final int REPEAT_COUNT = 5; //the amount of times that Test 9 resends the same message
 
-    private static final MessagingService service = new MessagingService();
-    private static int testNumber = 0;
+    private static final MessagingService service = new MessagingService(); // only route to the messaging system
+    private static int testNumber = 0; // lets tests name themselves
 
     public static void main(String[] args) {
+        // test data with all feilds filled out correctly, test data was built using Claude.
         User valid = new User("Alice Smith",
                 new PhoneNumber("07700900123"),
                 new EmailAddress("alice@example.com"),
@@ -26,6 +27,7 @@ public class Main {
         Message normal = new Message("Your order has shipped", Urgency.NORMAL);
         Message low = new Message("Monthly newsletter", Urgency.LOW);
 
+        //user is sent 3 messages
         heading("valid user, URGENT message");
         send(valid, urgent);
 
@@ -36,6 +38,8 @@ public class Main {
         send(valid, low);
 
         heading("invalid email");
+
+        //validation, each test builds a user with one bad detail and throws an error
         try {
             User user = new User("Bob Jones", null, new EmailAddress("bob.at.example"), null);
             send(user, normal);
@@ -60,6 +64,7 @@ public class Main {
             System.out.println("Rejected: " + e.getMessage());
         }
 
+        // null is allowed but invalid details are rejected
         heading("missing phone, URGENT message");
         User noPhone = new User("Eve Green", null,
                 new EmailAddress("eve@example.com"),
@@ -71,6 +76,7 @@ public class Main {
                 new PostalAddress("4 Church Street", "Liverpool", "L1 3AY"));
         send(postOnly, normal);
 
+        //repeated sends
         heading("same message sent " + REPEAT_COUNT + " times (shows fall-through on random failures)");
         for (int i = 1; i <= REPEAT_COUNT; i++) {
             System.out.print("Attempt " + i + ": ");
@@ -90,7 +96,7 @@ public class Main {
         heading("empty message text");
         send(valid, new Message("   ", Urgency.NORMAL));
     }
-
+    // helper methods
     private static void heading(String title) {
         testNumber++;
         System.out.println();
